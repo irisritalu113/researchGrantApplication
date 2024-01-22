@@ -1,0 +1,34 @@
+function checkAuthorAmount(e) {
+  var sheetName = "表單回應 1";
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+
+  // 1. 確定工作表名稱為“表單回應 1”
+  if (!sheet) return;
+
+  var Avals = sheet.getRange("A1:A").getValues();
+  var Alast = Avals.filter(String).length;
+  
+  var range = sheet.getRange(Alast, 12, 1, 1);
+  var totalAuthor = parseInt(range.getValues()[0][0]);
+  Logger.log(totalAuthor);
+
+  var range = sheet.getRange(Alast, 13, 1, 1);
+  var foreignAuthor = parseInt(range.getValues()[0][0]);
+  Logger.log(foreignAuthor);
+
+  var range = sheet.getRange(Alast, 14, 1, 1);
+  var domesticAuthor = parseInt(range.getValues()[0][0]);
+  Logger.log(domesticAuthor);
+
+  var isEqual = [[(!isNaN(foreignAuthor) && totalAuthor === foreignAuthor) || (!isNaN(domesticAuthor) && totalAuthor === domesticAuthor)]];
+  Logger.log(isEqual);
+
+  var range = sheet.getRange(Alast, 44, 1, 1);
+  range.setValue(isEqual);
+
+  // if (isEqual[0][0] === false) {
+  //   // 發送郵件通知
+  //   sendEmailNotification(sheet, Alast, isEqual);
+  //   Logger.log("寄送總作者人數錯誤");
+  // }
+}
