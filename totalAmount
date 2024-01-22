@@ -1,0 +1,120 @@
+function totalAmount() {
+  var sheetName = "表單回應 1";
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+
+  // 1. 確定工作表名稱為“表單回應 1”
+  if (!sheet) return;
+
+  var Avals = sheet.getRange("A1:A").getValues();
+  var Alast = Avals.filter(String).length;
+
+  var range = sheet.getRange(Alast,12,1,1); //取最後一列(row)的第十二欄(col)
+  var totalAuthor = range.getValues();
+  //從google sheet裡面拿出來的資料，他的格式其實是長這樣 [[100]]，google script 叫他做object物件，但這個object物件是不能做計算的，所以要做下面處理
+  for (var row in totalAuthor) {
+    for (var col in totalAuthor[row]) {
+      totalAuthor = totalAuthor[row][col];
+    }  
+  };
+  Logger.log(totalAuthor)
+
+  var range = sheet.getRange(Alast,23,1,1); 
+  var catType = range.getValues();
+  for (var row in catType) {
+    for (var col in catType[row]) {
+      catType = catType[row][col];
+    }  
+  };
+
+  var range = sheet.getRange(Alast,26,1,1); 
+  var sci = range.getValues();
+  for (var row in sci) {
+    for (var col in sci[row]) {
+      sci = sci[row][col];
+    }  
+  };
+
+  var range = sheet.getRange(Alast,29,1,1); 
+  var ssci = range.getValues();
+  for (var row in ssci) {
+    for (var col in ssci[row]) {
+      ssci = ssci[row][col];
+    }  
+  };
+
+  var range = sheet.getRange(Alast,32,1,1); 
+  var tssci = range.getValues();
+  for (var row in tssci) {
+    for (var col in tssci[row]) {
+      tssci = tssci[row][col];
+    }  
+  };
+
+  var range = sheet.getRange(Alast,21,1,1); 
+  var esg = range.getValues();
+  for (var row in esg) {
+    for (var col in esg[row]) {
+      esg = esg[row][col];
+    }  
+  };
+
+  var range = sheet.getRange(Alast,19,1,1); 
+  var ft50 = range.getValues();
+  for (var row in ft50) {
+    for (var col in ft50[row]) {
+      ft50 = ft50[row][col];
+    }  
+  };
+  Logger.log(ft50)
+
+  var amount = 0;
+  if (catType === "第一級名單") {
+    amount = 350000;
+  } else if (catType === "第二級名單") {
+    amount = 200000;
+  } else if (catType === "本院各專業領域第四級") {
+    amount = 40000;
+  } else if (catType === "其他國際學術期刊(需檢附證明)") {
+    amount = 20000;
+  }
+
+  if (sci === "SCI   ≧ 2.49 (補助金額$60,000)") {
+    amount = 60000;
+  } else if (sci === "SCI   ≧ 4.12 (補助金額$100,000)") {
+    amount = 100000;
+  } else if (sci === "SCI  < 2.49 (補助金額$40,000)") {
+    amount = 40000;
+  }
+
+  if (ssci === "SSCI   ≧ 2.11 (補助金額$60,000)") {
+    amount = 60000;
+  } else if (ssci === "SSCI   ≧ 3.45 (補助金額$100,000)") {
+    amount = 100000;
+  } else if (ssci === "SSCI  < 2.11 (補助金額$40,000)") {
+    amount = 40000;
+  }
+
+  if (tssci === "國科會2021公告「台灣人文及社會科學核心期刊」之第一級等級期刊") {
+    amount = 40000;
+  } else if (tssci === "國科會2021公告「台灣人文及社會科學核心期刊」之第二級等級期刊") {
+    amount = 20000;
+  }
+
+  if (esg.includes("ESG")) {
+    amount *= 1.1;
+  }
+
+  if (ft50 === "是") {
+    amount *= 2;
+  }
+
+    Logger.log(amount/totalAuthor)
+    amount = Math.floor(amount*2/(totalAuthor+1));
+    amount = [[amount]];
+    var range = sheet.getRange(Alast,45,1,1);
+    range.setValues(amount);
+
+    sendEmailNotification(sheet, Alast, amount);
+    Logger.log("成功寄送補助金額信件")
+
+}
