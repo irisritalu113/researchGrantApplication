@@ -1,0 +1,58 @@
+function thesisNameCheck() {
+  var sheetName = "表單回應 1";
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+
+  // 1. 確定工作表名稱為“表單回應 1”
+  if (!sheet) return;
+
+  var Avals = sheet.getRange("A1:A").getValues();
+  var Alast = Avals.filter(String).length;
+
+  // 獲取新提交的作者姓名和論文題目
+  var rangeAuthor = sheet.getRange(Alast, 3, 1, 1);
+  var newAuthor = rangeAuthor.getValue();
+
+  var rangeTitle = sheet.getRange(Alast, 7, 1, 1);
+  var newTitle = rangeTitle.getValue();
+  // Logger.log(newTitle)
+
+  // 檢查是否有足夠的資料進行比對
+  if (newAuthor && newTitle) {
+    // 開始比對已存在的資料
+    var dataRange = sheet.getRange(2, 3, Alast - 1, 7); // 假定資料在第2列至Alast列，第3至第7欄
+    var data = dataRange.getValues();
+
+    for (var i = 0; i < data.length-1; i++) {
+      var existingAuthor = data[i][0];
+      var existingTitle = data[i][4];
+
+      // 計算論文題目相似性
+      var similarity = calculateSimilarity(newTitle, existingTitle);
+      // Logger.log(existingTitle)
+      // Logger.log(similarity)
+
+      // 如果作者姓名和論文題目相似性超過80%，新增相似性過高的標記
+      if (existingAuthor === newAuthor && similarity > 0.8) {
+        var rangeSimilarity = sheet.getRange(Alast, 46, 1, 1);
+        rangeSimilarity.setValue("相似性過高");
+  
+      }
+    }
+  }
+}
+
+// 計算相似性的函數，可以根據實際需求進行調整
+function calculateSimilarity(str1, str2) {
+  // 這裡是一個簡單的相似性計算示例，你可以根據實際需求使用更複雜的算法
+  var commonLength = Math.min(str1.length, str2.length);
+  var commonChars = 0;
+
+  for (var i = 0; i < commonLength; i++) {
+    if (str1.charAt(i) === str2.charAt(i)) {
+      commonChars++;
+    }
+  }
+  return commonChars / commonLength;
+}
+
+
