@@ -1,0 +1,52 @@
+// 寄送郵件通知的函數
+function sendEmailNotification(sheet, row, formValues) {
+  // 獲取相關資料
+  var author = sheet.getRange(row, 3).getValue();
+  var title = sheet.getRange(row, 7).getValue();
+  Logger.log(author)
+  Logger.log(title)
+  
+  // 檢查是否有設定郵件收件人的地址（這裡假設行42和行4是兩個收件人的郵件地址）
+  var emailRecipient1 = sheet.getRange(row, 42).getValue();
+  var emailRecipient2 = sheet.getRange(row, 4).getValue();
+  var notificationSubject = "通知論文作者："+ author + " 審核補助金額";
+  var notificationBody = "- 論文作者：" + author + "\n論文題目：" + title + "\n";  
+  Logger.log(emailRecipient1)
+  Logger.log(emailRecipient2)
+
+  // 獲取補助金額的值
+  var amount = sheet.getRange(row, 45).getValue();
+  notificationBody += "- 補助金額共: $" + numberWithCommas(amount) + " 元\n (計算方式：補助金額*2/(著作總人數+1)，若符合FT50則另有2倍獎勵，或屬ESG另有10%獎勵補助)\n\n";
+  Logger.log(notificationBody)
+
+  // 獲取相似性狀態的值
+  var similarityStatus = sheet.getRange(row, 46).getValue();
+  if (similarityStatus === "相似性過高") {
+    notificationSubject += "、曾申請相似論文名稱通知";
+    notificationBody +=  "- 錯誤通知：系統查核您曾以相似論文名稱申請，請與助教確認" + "\n";
+    Logger.log(notificationBody)
+  }
+  // 獲取相似性狀態的值
+  var isEqualStatus = sheet.getRange(row, 44).getValue();
+  Logger.log(isEqualStatus)
+  if (isEqualStatus === false) {
+    notificationSubject += "、總作者人數輸入錯誤通知";
+    notificationBody +=  "- 錯誤通知：系統查核您所填 總作者人數不等於國內外作者人數相加，請與助教確認" + "\n";
+    Logger.log(notificationBody)
+  }
+  // 寄送郵件
+  MailApp.sendEmail({
+    to: emailRecipient1 + "," + emailRecipient2,
+    subject: notificationSubject,
+    body: notificationBody,
+  });
+  Logger.log(notificationSubject)
+  Logger.log(notificationBody)
+    
+  
+}
+
+// 將數字轉換為帶千位分隔符的字符串
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
